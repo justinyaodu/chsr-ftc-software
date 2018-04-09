@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import android.util.Log;
-
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.bosch.NaiveAccelerationIntegrator;
@@ -9,9 +7,7 @@ import com.qualcomm.hardware.bosch.NaiveAccelerationIntegrator;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.util.Angle;
 import org.firstinspires.ftc.teamcode.util.Point;
 import org.firstinspires.ftc.teamcode.util.Utils;
@@ -28,9 +24,7 @@ public class SimpleImu implements SimpleGyroSensor, SimplePositionSensor {
     public SimpleImu(BNO055IMU imu) {
         IMU = imu;
         IMU.initialize(imuParameters());
-        /*
-        Robot.getTelemetry().addLine("telemetry test");
-        Robot.getTelemetry().update();
+
         if (IMU.getParameters().accelerationIntegrationAlgorithm == null) {
             Robot.getTelemetry().addLine("acceleration integration algorithm null");
             Robot.getTelemetry().update();
@@ -46,7 +40,6 @@ public class SimpleImu implements SimpleGyroSensor, SimplePositionSensor {
                 Robot.getTelemetry().update();
             }
         }
-        */
     }
 
     private static BNO055IMU.Parameters imuParameters() {
@@ -90,13 +83,13 @@ public class SimpleImu implements SimpleGyroSensor, SimplePositionSensor {
         switch (axis) {
             case X:
                 xScalar *= -1;
-                return;
+                break;
             case Y:
                 yScalar *= -1;
-                return;
+                break;
             case Z:
                 zScalar *= -1;
-                return;
+                break;
         }
     }
 

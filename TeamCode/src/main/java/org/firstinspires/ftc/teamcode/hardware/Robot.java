@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.Angle;
@@ -73,7 +74,7 @@ public class Robot {
         LEFT_MOTOR.setDirection(DcMotorSimple.Direction.FORWARD);
         RIGHT_MOTOR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        telemetry.addLine("initializing and calibrating gyros");
+        telemetry.addLine("initializing gyros");
         telemetry.update();
 
         //create a SimpleMRGyro from the Modern Robotics gyro
@@ -84,8 +85,11 @@ public class Robot {
         IMU.setOrientation(SimpleGyroSensor.Orientation.REVERSE);
 
         //start gyro calibrate and wait
+        ElapsedTime calibrateTime = new ElapsedTime();
         GYRO.calibrate();
-        while (GYRO.isCalibrating());
+        while (GYRO.isCalibrating()) {
+            telemetry.addData("gyro calibrating", calibrateTime);
+        }
 
         telemetry.addLine("hardware initialization complete");
         telemetry.update();
