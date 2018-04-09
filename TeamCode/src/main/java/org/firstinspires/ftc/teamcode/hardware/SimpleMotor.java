@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.util.Angle;
 public class SimpleMotor implements DcMotor {
     private final DcMotor MOTOR;
     public final double TICKS_PER_MOTOR_REVOLUTION;
-    private int zeroPosition;
 
     public enum RotateFreelyBy {
         /**
@@ -31,7 +30,6 @@ public class SimpleMotor implements DcMotor {
         setMode(RunMode.RUN_USING_ENCODER);
 
         TICKS_PER_MOTOR_REVOLUTION = ticksPerMotorRevolution;
-        zeroPosition = getCurrentPosition();
     }
 
     /**
@@ -72,7 +70,7 @@ public class SimpleMotor implements DcMotor {
      * @param power The power to apply to the motor
      */
     public void rotateAbsolute(Angle angle, double power) {
-        setTargetPosition(angleToEncoderTicks(angle) + zeroPosition);
+        setTargetPosition(angleToEncoderTicks(angle));
         if (!getMode().equals(RunMode.RUN_TO_POSITION)) {
             setMode(RunMode.RUN_TO_POSITION);
         }
@@ -85,14 +83,7 @@ public class SimpleMotor implements DcMotor {
      * @return The rotation of this motor
      */
     public Angle getRotation() {
-        return encoderTicksToAngle(getCurrentPosition() - zeroPosition);
-    }
-
-    /**
-     * Sets the motor encoder tick count to zero at the current position.
-     */
-    public void setZeroPosition() {
-        zeroPosition = getCurrentPosition();
+        return encoderTicksToAngle(getCurrentPosition());
     }
 
     /**

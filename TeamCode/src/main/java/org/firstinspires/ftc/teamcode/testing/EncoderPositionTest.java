@@ -26,11 +26,6 @@ public class EncoderPositionTest extends OpMode {
         telemetry.setMsTransmissionInterval(100);
 
         encoderPositionSensor = new EncoderPositionSensor(robot.LEFT_MOTOR, robot.RIGHT_MOTOR);
-
-        robot.GYRO.calibrate();
-        telemetry.addData("gyro calibration", "started");
-        while (robot.GYRO.isCalibrating());
-        telemetry.addData("gyro calibration", "complete");
     }
 
     @Override

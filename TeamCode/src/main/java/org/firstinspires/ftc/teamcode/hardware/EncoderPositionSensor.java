@@ -26,6 +26,9 @@ public class EncoderPositionSensor implements SimpleGyroSensor, SimplePositionSe
     public EncoderPositionSensor(SimpleMotor leftMotor, SimpleMotor rightMotor) {
         LEFT_MOTOR = leftMotor;
         RIGHT_MOTOR = rightMotor;
+
+        lastLeftAngle = LEFT_MOTOR.getRotation();
+        lastRightAngle = RIGHT_MOTOR.getRotation();
     }
 
     @Override
@@ -83,12 +86,8 @@ public class EncoderPositionSensor implements SimpleGyroSensor, SimplePositionSe
     //recalculates robot position based on distance driven by left and right wheels
     private void move(double leftInches, double rightInches) {
         //a hacky but effective way to prevent division by zero
-        if (leftInches == 0) {
-            leftInches = Utils.noise();
-        }
-        if (rightInches == 0) {
-            rightInches = Utils.noise();
-        }
+        leftInches += Utils.noise();
+        rightInches += Utils.noise();
 
         double arcRadius = (Robot.DRIVE_WIDTH / 2) * (rightInches + leftInches) / (rightInches - leftInches);
         double arcLength = (leftInches + rightInches) / 2;

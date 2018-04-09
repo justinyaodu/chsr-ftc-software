@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.util.Angle;
 
 public class Robot {
@@ -52,6 +53,8 @@ public class Robot {
      */
     private static final double TICKS_PER_MOTOR_REVOLUTION = 1120;
 
+    private static Telemetry telemetry;
+
     /**
      * Creates a new Robot from the hardware map.
      *
@@ -60,16 +63,18 @@ public class Robot {
      *                    are calibrating, etc. and so that we can log data using telemetry.
      */
     public Robot(HardwareMap hardwareMap, OpMode opMode) {
-        opMode.telemetry.addLine("initializing motors");
-        opMode.telemetry.update();
+        telemetry = opMode.telemetry;
+
+        telemetry.addLine("initializing motors");
+        telemetry.update();
 
         LEFT_MOTOR = new SimpleMotor(hardwareMap.dcMotor.get("leftMotor"), TICKS_PER_MOTOR_REVOLUTION);
         RIGHT_MOTOR = new SimpleMotor(hardwareMap.dcMotor.get("rightMotor"), TICKS_PER_MOTOR_REVOLUTION);
         LEFT_MOTOR.setDirection(DcMotorSimple.Direction.FORWARD);
         RIGHT_MOTOR.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        opMode.telemetry.addLine("initializing and calibrating gyros");
-        opMode.telemetry.update();
+        telemetry.addLine("initializing and calibrating gyros");
+        telemetry.update();
 
         //create a SimpleMRGyro from the Modern Robotics gyro
         GYRO = new SimpleMRGyro((ModernRoboticsI2cGyro) hardwareMap.gyroSensor.get("gyro"));
@@ -78,18 +83,12 @@ public class Robot {
         IMU = new SimpleImu(hardwareMap.get(BNO055IMU.class, "imu"));
         IMU.setOrientation(SimpleGyroSensor.Orientation.REVERSE);
 
-        //start gyro calibrate and wait, checking to make sure opmode is still active
+        //start gyro calibrate and wait
         GYRO.calibrate();
-        while (GYRO.isCalibrating()) {
-            if (opMode instanceof LinearOpMode && !((LinearOpMode)opMode).opModeIsActive()) {
-                opMode.telemetry.addLine("calibration aborted, opModeIsActive returned false");
-                opMode.telemetry.update();
-                return;
-            }
-        }
+        while (GYRO.isCalibrating());
 
-        opMode.telemetry.addLine("hardware initialization complete");
-        opMode.telemetry.update();
+        telemetry.addLine("hardware initialization complete");
+        telemetry.update();
     }
 
     /**
@@ -143,5 +142,9 @@ public class Robot {
      */
     public boolean isDriving() {
         return LEFT_MOTOR.isBusy() || RIGHT_MOTOR.isBusy();
+    }
+
+    public static Telemetry getTelemetry() {
+        return telemetry;
     }
 }

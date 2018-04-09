@@ -135,6 +135,14 @@ public class Angle {
     }
 
     /**
+     * Negates an Angle.
+     * @return This Angle negated
+     */
+    public Angle negate() {
+        return new Angle(-VALUE, UNIT, TYPE, NORMALIZATION);
+    }
+
+    /**
      * Return the sine of this Angle.
      *
      * @return The sine of this angle
@@ -190,11 +198,11 @@ public class Angle {
     }
 
     private static double normalizeZeroToMax(double value, Unit unit) {
-        return ((value % unit.ROTATION) + unit.ROTATION) * unit.ROTATION;
+        return ((value % unit.ROTATION) + unit.ROTATION) % unit.ROTATION;
     }
 
     @Override
     public String toString() {
-        return Utils.format("%.4f %s", VALUE, UNIT);
+        return Utils.format("%.4f %s %s %s", VALUE, UNIT, TYPE, NORMALIZATION);
     }
 }

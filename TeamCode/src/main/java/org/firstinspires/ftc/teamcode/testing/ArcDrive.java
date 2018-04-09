@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.input.DoubleGamepad;
 import org.firstinspires.ftc.teamcode.util.Angle;
+import org.firstinspires.ftc.teamcode.util.Utils;
 
 @Autonomous(name = "ArcDrive", group = "Testing")
 public class ArcDrive extends LinearOpMode {
@@ -30,7 +31,20 @@ public class ArcDrive extends LinearOpMode {
 
         waitForStart();
 
-        arcTest();
+        driveICurve(24, 24);
+        telemetry.addLine("press A to continue");
+        telemetry.update();
+        while (!input.a() && opModeIsActive()) ;
+        driveICurve(-24, 24);
+        telemetry.addLine("press A to continue");
+        telemetry.update();
+        while (!input.a() && opModeIsActive()) ;
+        driveICurve(-24, -24);
+        telemetry.addLine("press A to continue");
+        telemetry.update();
+        while (!input.a() && opModeIsActive()) ;
+        driveICurve(24, -24);
+        //arcTest();
     }
 
     private void arcTest() {
@@ -56,23 +70,51 @@ public class ArcDrive extends LinearOpMode {
         while (opModeIsActive()) {
             if (input.a()) {
                 break;
-            }
-            else if (input.x()) {
+            } else if (input.x()) {
                 Angle gyro = robot.GYRO.getHeading();
                 Angle imu = robot.IMU.getHeading();
                 telemetry.addLine("turn the robot, and press Y to calculate change in angle");
                 telemetry.update();
-                while (!input.y() && opModeIsActive());
-                gyro = Angle.difference(robot.GYRO.getHeading(), gyro, Angle.Normalization.ZERO_AT_CENTER);                        gyro = Angle.difference(robot.GYRO.getHeading(), gyro, Angle.Normalization.NONE);
+                while (!input.y() && opModeIsActive()) ;
+                gyro = Angle.difference(robot.GYRO.getHeading(), gyro, Angle.Normalization.ZERO_AT_CENTER);
                 imu = Angle.difference(robot.IMU.getHeading(), imu, Angle.Normalization.ZERO_AT_CENTER);
                 telemetry.addData("gyro angle", gyro);
                 telemetry.addData("imu angle", imu);
                 telemetry.addLine("press A to continue");
                 telemetry.update();
-                while (!input.a() && opModeIsActive());
+                while (!input.a() && opModeIsActive()) ;
                 break;
             }
         }
+    }
+
+    private void driveICurve(double a, double b) {
+        a += Utils.noise();
+        b += Utils.noise();
+        double k = 3;
+
+        int aSign = a < 0 ? -1 : 1;
+        a = Math.abs(a);
+
+        int bSign = b < 0 ? -1 : 1;
+        b = Math.abs(b);
+
+        double radius = b / 3;
+        double alpha = (Math.PI / 2) - (Math.atan(b / (a - (2 * b / k))) - Math.atan((2 * b / k) / Math.sqrt(a * a - 4 * a * b / k + b * b)));
+        double length = Math.sqrt(a * a - 4 * a * b / k + b * b);
+        Angle angle = new Angle(alpha, Angle.Unit.RADIANS, Angle.Type.HEADING, Angle.Normalization.NONE);
+
+        telemetry.addData("radius", radius);
+        telemetry.addData("angle", angle);
+        telemetry.addData("length", length);
+        telemetry.addLine("press A to continue");
+        telemetry.update();
+        while (!input.a() && opModeIsActive());
+
+        driveArc(aSign * bSign > 0 ? angle.negate() : angle, radius * aSign);
+        robot.driveDistance(length * bSign, length * bSign, DRIVE_POWER);
+        while (robot.isDriving() && opModeIsActive());
+        driveArc(aSign * bSign < 0 ? angle.negate() : angle, radius * aSign * -1);
     }
 
     /**
@@ -87,6 +129,7 @@ public class ArcDrive extends LinearOpMode {
         telemetry.addData("unconverted radius", radius);
 
         angle = angle.convertUnit(Angle.Unit.RADIANS);
+        angle = new Angle(angle.VALUE * angleCorrectionFactor(radius), Angle.Unit.RADIANS, Angle.Type.HEADING, Angle.Normalization.NONE);
         radius = radiusCorrected(radius);
 
         telemetry.addData("angle", angle.convertUnit(Angle.Unit.DEGREES));
@@ -135,5 +178,15 @@ public class ArcDrive extends LinearOpMode {
         }
 
         return radius * sign;
+    }
+
+    private double angleCorrectionFactor(double radius) {
+        radius = Math.abs(radius);
+
+        if (radius < Robot.DRIVE_WIDTH) {
+            return (0.094 * radius + 382) / 360;
+        } else {
+            return (0.574 * radius + 375) / 360;
+        }
     }
 }
